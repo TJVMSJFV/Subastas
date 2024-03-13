@@ -39,7 +39,8 @@ enum Gender {
 
 // Colleccionista
 model Collector {
-    docId         String        @id @map("_id") @db.ObjectId
+    id            String        @id @default(auto()) @map("_id") @db.ObjectId
+    docId         String        @unique
     fName         String
     mName         String?
     fLastName     String
