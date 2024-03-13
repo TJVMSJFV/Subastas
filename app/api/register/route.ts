@@ -1,5 +1,5 @@
-import { registerUserDto } from '@/components/user/user.dto';
-import { userService } from '@/components/user/user.service';
+import { registerUserDto } from '@/services/user/user.dto';
+import { userService } from '@/services/user/user.service';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const user = await userService.registerUser(body);
 
     return NextResponse.json(user);
-    
+
   } catch (err) {
     return NextResponse.error();
   }
