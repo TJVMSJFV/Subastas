@@ -39,19 +39,22 @@ enum Gender {
 
 // Colleccionista
 model Collector {
-    docId       String        @id @map("_id") @db.ObjectId
-    fName       String
-    mName       String?
-    fLastName   String
-    mLastName   String?
-    gender      Gender
-    birthDate   DateTime
-    phoneNumber String
-    createdAt   DateTime      @default(now())
-    updatedAt   DateTime      @updatedAt
-    belong_Hist Belong_Hist[]
-    memberShip  MemberShip[]
-    accounts    Account[] // Referencia de la cuenta
+    docId         String        @id @map("_id") @db.ObjectId
+    fName         String
+    mName         String?
+    fLastName     String
+    mLastName     String?
+    email         String        @unique
+    emailVerified DateTime?
+    password      String?
+    gender        Gender
+    birthDate     DateTime
+    phoneNumber   String
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+    belong_Hist   Belong_Hist[]
+    memberShip    MemberShip[]
+    account       Account[] // Referencia de la cuenta
 }
 
 // Cuenta
