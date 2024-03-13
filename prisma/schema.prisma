@@ -1,0 +1,234 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("MONGO_URL")
+}
+
+enum AuctionState {
+    ACTIVE // Es cuando se crea una subasta y esta en el proceso de agregar pujadores
+    IN_PROGRESS // Ya no permite que entren mas pujadores, pero permite que se hagan pujas
+    FINSISHED // Ya no permite que se hagan pujas y se muestra el ganador de la puja
+    CANCELLED // Se cancela la subasta
+}
+
+enum AuctionType {
+    AMERICAN // Subasta americana
+}
+
+// Subasta
+model Auction {
+    id          String        @id @default(auto()) @map("_id") @db.ObjectId
+    initDate    DateTime      @default(now())
+    endDate     DateTime?
+    type        AuctionType   @default(AMERICAN) // Tipo de subasta
+    state       AuctionState  @default(ACTIVE) // Estado de la subasta
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+    Catalog     Catalog[]
+    participant Participant[]
+    affiliate   Affiliate[]
+}
+
+enum Gender {
+    M
+    F
+}
+
+// Colleccionista
+model Collector {
+    id            String        @id @default(auto()) @map("_id") @db.ObjectId
+    docId         String        @unique
+    fName         String
+    mName         String?
+    fLastName     String
+    mLastName     String?
+    email         String        @unique
+    emailVerified DateTime?
+    password      String?
+    gender        Gender
+    birthDate     DateTime
+    phoneNumber   String
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+    belong_Hist   Belong_Hist[]
+    memberShip    MemberShip[]
+    account       Account[] // Referencia de la cuenta
+}
+
+// Cuenta
+model Account {
+    id                String  @id @default(auto()) @map("_id") @db.ObjectId
+    docId             String  @db.ObjectId
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? @db.String
+    access_token      String? @db.String
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.String
+    session_state     String?
+
+    collector Collector @relation(fields: [docId], references: [docId], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+// Catalogo
+model Catalog {
+    idCatalog      String       @id @default(auto()) @map("_id") @db.ObjectId
+    basePrice      Float
+    minBidDuration Int?
+    order          Int?
+    reachedPrice   Float?
+    // Referencias
+    idAuction      String       @db.ObjectId
+    idBelongHist   String       @db.ObjectId
+    idParticipant  String?      @db.ObjectId
+    auction        Auction      @relation(fields: [idAuction], references: [id])
+    belongHist     Belong_Hist  @relation(fields: [idBelongHist], references: [idRecord])
+    participant    Participant? @relation(fields: [idParticipant], references: [idParticipant])
+    // End referencias
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+}
+
+// Club
+model Club {
+    idClub        String       @id @default(auto()) @map("_id") @db.ObjectId
+    name          String
+    fundationDate DateTime
+    phoneNumber   String
+    email         String
+    webPage       String?
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+    Social        Social[]
+    // Referencias
+    idResponsible String?      @db.ObjectId
+    responsible   Belong_Hist? @relation(fields: [idResponsible], references: [idRecord]) // Referencia del historial de pertenencia (Responsable del Club)
+    // End Referencias
+    affiliate     Affiliate[]
+    memberShip    MemberShip[]
+}
+
+// Coleccionable
+model Collectable {
+    idCollectable String        @id @default(auto()) @map("_id") @db.ObjectId
+    name          String
+    description   String
+    imageSrc      String?
+    belongHist    Belong_Hist[] // Referencia del historial de pertenencia
+}
+
+// Comic
+model Comic {
+    idComic         String        @id @default(auto()) @map("_id") @db.ObjectId
+    editorial       String
+    title           String
+    number          Int
+    volume          Int?
+    publicationDate DateTime?
+    color           Boolean
+    numPages        Int
+    synopsis        String
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+    belongHist      Belong_Hist[] // Referencia del historial de pertenencia
+}
+
+// Interes
+model Interest {
+    idInterest  String   @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    description String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+// Participante
+model Participant {
+    idParticipant String     @id @default(auto()) @map("_id") @db.ObjectId
+    authorized    Boolean?
+    // Referencias 
+    idAuction     String     @db.ObjectId
+    idMemberShip  String     @db.ObjectId
+    auction       Auction    @relation(fields: [idAuction], references: [id])
+    membership    MemberShip @relation(fields: [idMemberShip], references: [idMembership])
+    // End referencias
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
+    catalog       Catalog[] // Referencia del catalogo
+}
+
+// Historial de pertenencia
+model Belong_Hist {
+    idRecord      String       @id @default(auto()) @map("_id") @db.ObjectId
+    registerDate  DateTime     @default(now())
+    price         Float?
+    meaning       Boolean?
+    // Referencias
+    idCollectable String?      @db.ObjectId
+    idComic       String?      @db.ObjectId
+    idCollector   String?      @db.ObjectId
+    collectable   Collectable? @relation(fields: [idCollectable], references: [idCollectable])
+    comic         Comic?       @relation(fields: [idComic], references: [idComic])
+    collector     Collector?   @relation(fields: [idCollector], references: [docId])
+    // End referencias
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+    catalog       Catalog[] // Referencia del catalogo
+    club          Club[] // Referencia del miembro responsable del club
+}
+
+// Historial de membresia
+model MemberShip {
+    idMembership String        @id @default(auto()) @map("_id") @db.ObjectId
+    email        String
+    leaveDate    DateTime?
+    // Referencias
+    idClub       String        @db.ObjectId
+    idCollector  String        @db.ObjectId
+    club         Club          @relation(fields: [idClub], references: [idClub])
+    collector    Collector     @relation(fields: [idCollector], references: [docId])
+    // End referencias
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    participant  Participant[] // Referencia del participante
+}
+
+// Contacto_Red_Varios
+model Social {
+    idSocial   String   @id @default(auto()) @map("_id") @db.ObjectId
+    username   String?
+    socialName String?
+    // Referencias
+    idClub     String   @db.ObjectId
+    club       Club     @relation(fields: [idClub], references: [idClub])
+    // End Referencias
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+}
+
+enum AffiliateType {
+    ORGANIZER
+    GUEST
+}
+
+// Organizador / Invitado Va directamente hacia un club, los invitados u organizadores son clubes
+model Affiliate {
+    idAffiliate String        @id @default(auto()) @map("_id") @db.ObjectId
+    type        AffiliateType // No se puede hacer un arco exclusivo en prisma xd
+    // Referencias
+    idClub      String        @db.ObjectId
+    idAuction   String        @db.ObjectId
+    club        Club          @relation(fields: [idClub], references: [idClub])
+    auction     Auction       @relation(fields: [idAuction], references: [id])
+    // End Referencias
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+}
