@@ -22,14 +22,6 @@ export default function LoginPage() {
 
     const onSubmit: SubmitHandler<IformInput> = (data) => {
         console.log(data)
-
-        const toSign = signIn('credentials', {
-            email: data.email,
-            password: data.password,
-            callbackUrl: '/dashboard'
-        })
-
-        console.log(toSign)
     }
 
     return (
