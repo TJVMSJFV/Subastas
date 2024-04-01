@@ -10,14 +10,3 @@ export type registerUserDto = {
   birthDate: Date;
   phoneNumber: string;
 };
-
-"docId"
-"firstName"
-"middleName"
-"firstLastName"
-"middleLastName"
-"email"
-"password"
-"gender"
-"birthDate"
-"phoneNumber"
