@@ -5,27 +5,31 @@ import { FiMail } from 'react-icons/fi';
 import { RiKey2Fill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { signIn } from 'next-auth/react';
+import { signIn, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface IformInput {
   email: string;
   password: string;
 }
 
-export default function LoginPage() {
+export default function LoginForm() {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<IformInput>();
 
+  const router = useRouter();
+
   const onSubmit: SubmitHandler<IformInput> = async (data) => {
     try {
-      //   await signIn('credentials', {
-      //     email: data.email,
-      //     password: data.password,
-      //     redirect: true,
-      //   });
+      await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+      router.push('/dashboard');
     } catch (err) {
       console.error(err);
     }
