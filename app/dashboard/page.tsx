@@ -1,7 +1,19 @@
-import React from 'react'
+import Dashboard from '@/components/Dashboard';
+import getCurrentUser from '@/lib/actions/get-current-user';
+import { signOut } from 'next-auth/react';
+import { redirect } from 'next/navigation';
+import React from 'react';
 
-export default function Dashboard() {
+export default async function DashboardPage() {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    return redirect('/login');
+  }
+
   return (
-    <div><h1>Dashboard</h1></div>
-  )
+    <div>
+      <Dashboard />
+    </div>
+  );
 }
