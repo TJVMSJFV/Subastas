@@ -5,7 +5,9 @@ import React from 'react';
 export default function Dashboard() {
   return (
     <div>
-      <button onClick={() => signOut()}>Sign out</button>
+      <button className="text-black" onClick={() => signOut()}>
+        Sign out
+      </button>
     </div>
   );
 }

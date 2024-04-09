@@ -1,4 +1,4 @@
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/dashboard/Dashboard';
 import getCurrentUser from '@/lib/actions/get-current-user';
 import { signOut } from 'next-auth/react';
 import { redirect } from 'next/navigation';
